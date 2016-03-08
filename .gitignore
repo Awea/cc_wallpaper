@@ -1,6 +1,7 @@
 /_build
 /cover
 /deps
-/datas
+datas/*
+!datas/watermarks
 erl_crash.dump
 *.ez
