@@ -1,0 +1,1 @@
+%{"mogrify": {:git, "https://github.com/route/mogrify.git", "88f8031f349b950f247e4370c3df8d5f10c38c5b", []}}

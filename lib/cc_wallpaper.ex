@@ -1,0 +1,2 @@
+defmodule CcWallpaper do
+end
