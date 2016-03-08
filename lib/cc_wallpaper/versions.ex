@@ -33,7 +33,7 @@ defmodule Mix.Tasks.CcWallpaper do
   # portrait resize:
   # iPhone 5 (640x1136)
   # iPhone 6 (750x1334)
-  # iPhone 6+ (1080x1920)
+  # iPhone 6plus (1080x1920)
   # square:
   # iPad (2048x2048)
   defmodule WaterMark do
@@ -41,9 +41,9 @@ defmodule Mix.Tasks.CcWallpaper do
 
     @shortdoc "Add a watermark to an image"
 
-    @desktop_sizes ["1280x800", "1440x900", "1680x1050", "1920x1200", "2560x1440", "3840x2400"]
-    @iphone_sizes ["640x1136", "750x1334", "1080x1920"]
-    @ipad_sizes ["2048x2048"]
+    @desktop_sizes %{desktop_a: "1280x800", desktop_b: "1440x900", desktop_c: "1680x1050", desktop_d: "1920x1200", desktop_e: "2560x1440", desktop_f: "3840x2400"}
+    @iphone_sizes %{iphone_5: "640x1136", iphone_6: "750x1334", iphone_6_plus: "1080x1920"}
+    @ipad_sizes %{ipad: "2048x2048"}
 
     def run(args) do
       # http://is.gd/TWGGvC
@@ -51,28 +51,32 @@ defmodule Mix.Tasks.CcWallpaper do
       image_path   = opts[:path]
 
       image              = open(image_path)
-      image_infos        = image |> infos
-      image_size         = "#{image_infos.width}x#{image_infos.height}"
-      output_dirname     = image_infos.path |> Path.dirname
-      output_basename    = image_infos.path |> Path.basename
+      image_infos        = image |> verbose
+      image_dirname      = image_infos.path |> Path.dirname
+      output_dirname     = "#{image_dirname}/output"
+      output_basename    = image_infos.path |> Path.basename(image_infos.ext)
       {sizes, watermark} = output_basename |> get_sizes
 
-      Enum.filter(sizes, fn(size) -> size <= image_size end)
-      |> Enum.each(fn(size) -> 
-        new_image_path = "#{output_dirname}/#{size}-#{output_basename}"
+      unless File.exists?(output_dirname) do
+        File.mkdir(output_dirname)
+      end
+
+      Enum.filter(sizes, fn{_, size} -> 
+        size = String.replace(size, "x", "")
+        String.to_integer(size) <= String.to_integer("#{image_infos.width}#{image_infos.height}")
+      end)
+      |> Enum.each(fn{k, size} -> 
+        new_file_name  = "#{file_name_convention(output_basename, k, size, image_infos.ext)}"
+        new_image_path = "#{output_dirname}/#{file_name_convention(output_basename, k, size, image_infos.ext)}"
         
         image |> copy |> resize_to_fill(size) |> save(new_image_path) 
 
         # add a watermark
         if watermark do
-          args = ~w(-gravity SouthWest #{System.cwd()}/datas/watermarks/watermark-height-#{watermark_size(size)}-dark.png #{output_dirname}/#{size}-#{output_basename} #{output_dirname}/#{size}-#{output_basename})
+          args = ~w(-gravity SouthWest #{System.cwd()}/datas/watermarks/watermark-height-#{watermark_size(size)}-dark.png #{new_image_path} #{new_image_path})
           System.cmd "composite", args, stderr_to_stdout: true
         end
       end)
-    end
-
-    defp infos(image) do 
-      image |> verbose
     end
 
     defp watermark_size(size) do
@@ -80,6 +84,20 @@ defmodule Mix.Tasks.CcWallpaper do
         "22px"
       else
         "13px"
+      end
+    end
+
+    defp file_name_convention(basename, device, size, ext) do
+      device = device |> Atom.to_string
+      cond do
+        String.contains? device, "iphone"->
+          basename = String.replace(basename, ~r/-wallpaper-(.*)/, "")
+          "#{basename}-wallpaper-#{String.replace(device, "_", "-")}#{ext}"
+        String.contains? device, "ipad" ->
+          "#{basename}#{ext}"
+        true ->
+          basename = String.replace(basename, ~r/-wallpaper-(.*)/, "")
+          "#{basename}-wallpaper-#{size}#{ext}"
       end
     end
 

@@ -5,3 +5,4 @@ datas/*
 !datas/watermarks
 erl_crash.dump
 *.ez
+.idea
