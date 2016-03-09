@@ -83,7 +83,7 @@ defmodule Mix.Tasks.CcWallpaper do
       if watermark do
         {dominantColor, _} = DominantColors.get(image_path)
 
-        if dominantColor < @color_limit_integer do
+        if dominantColor > @color_limit_integer do
           watermark_color = "dark"
         else
           watermark_color = "light"
@@ -97,7 +97,8 @@ defmodule Mix.Tasks.CcWallpaper do
       |> Enum.each(fn{k, size} -> 
         new_image_path = "#{output_dirname}/#{file_name_convention(output_basename, k, size, image_infos.ext)}"
         
-        image |> copy |> resize_to_fill(size) |> save(new_image_path) 
+        # image |> copy |> resize_to_fill(size) |> save(new_image_path) 
+        :os.cmd 'convert #{image_path} -resize "#{size}^" -gravity center -crop #{size}0+0 +repage #{new_image_path}'
 
         # add a watermark
         if watermark do
