@@ -97,11 +97,11 @@ defmodule Mix.Tasks.CcWallpaper do
       |> Enum.each(fn{k, size} -> 
         new_image_path = "#{output_dirname}/#{file_name_convention(output_basename, k, size, image_infos.ext)}"
         
-        :os.cmd 'convert #{image_path} -resize #{size}^ -gravity center -crop #{size}+0+0 #{new_image_path}'
+        :os.cmd 'convert #{image_path} -quality 100 -resize #{size}^ -gravity center -crop #{size}+0+0 #{new_image_path}'
 
         # add a watermark
         if watermark do
-          args = ~w(-gravity SouthWest #{System.cwd()}/datas/watermarks/watermark-height-#{watermark_size(size)}-#{watermark_color}.png #{new_image_path} #{new_image_path})
+          args = ~w(-quality 100 -gravity SouthWest #{System.cwd()}/datas/watermarks/watermark-height-#{watermark_size(size)}-#{watermark_color}.png #{new_image_path} #{new_image_path})
           System.cmd "composite", args, stderr_to_stdout: true
         end
       end)
