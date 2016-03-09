@@ -123,13 +123,14 @@ defmodule Mix.Tasks.CcWallpaper do
       device = device |> Atom.to_string
       cond do
         String.contains? device, "iphone"->
-          basename = String.replace(basename, ~r/-wallpaper-(.*)/, "")
-          "#{basename}-wallpaper-#{String.replace(device, "_", "-")}#{ext}"
+          basename = String.replace(basename, ~r/-src-(.*)/, "")
+          "#{basename}-#{String.replace(device, "_", "-")}#{ext}"
         String.contains? device, "ipad" ->
-          "#{basename}#{ext}"
+          basename = String.replace(basename, ~r/-src-(.*)/, "")
+          "#{basename}-ipad#{ext}"
         true ->
-          basename = String.replace(basename, ~r/-wallpaper-(.*)/, "")
-          "#{basename}-wallpaper-#{size}#{ext}"
+          basename = String.replace(basename, ~r/-src-(.*)/, "")
+          "#{basename}-#{size}#{ext}"
       end
     end
 
