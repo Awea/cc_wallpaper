@@ -97,8 +97,7 @@ defmodule Mix.Tasks.CcWallpaper do
       |> Enum.each(fn{k, size} -> 
         new_image_path = "#{output_dirname}/#{file_name_convention(output_basename, k, size, image_infos.ext)}"
         
-        # image |> copy |> resize_to_fill(size) |> save(new_image_path) 
-        :os.cmd 'convert #{image_path} -resize "#{size}^" -gravity center -crop #{size}0+0 +repage #{new_image_path}'
+        :os.cmd 'convert #{image_path} -resize #{size}^ -gravity center -crop #{size}+0+0 #{new_image_path}'
 
         # add a watermark
         if watermark do
