@@ -107,10 +107,6 @@ defmodule Mix.Tasks.CcWallpaper do
       end)
     end
 
-    defp watermark_color(dominant_color) do
-      
-    end
-
     defp watermark_size(size) do
       if size == "3840x2400" do
         "22px"
